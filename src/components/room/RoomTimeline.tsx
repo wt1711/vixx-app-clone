@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    paddingTop: 80, // Space for floating input (inverted list, so this is visual bottom)
+    paddingTop: 80,
     paddingBottom: 16,
     paddingHorizontal: 16,
   },

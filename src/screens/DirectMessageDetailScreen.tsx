@@ -150,11 +150,6 @@ export function DirectMessageDetailScreen({
           />
           <ReplyProvider>
             <AIAssistantProvider room={room} isMobile={true}>
-              <RoomViewHeader
-                room={room}
-                onBack={onBack}
-              />
-
               <View style={styles.keyboardView}>
                 <RoomTimeline room={room} eventId={eventId} />
 
@@ -168,6 +163,24 @@ export function DirectMessageDetailScreen({
                 </Animated.View>
               </View>
 
+              {/* Header AFTER timeline so BlurView can blur the content behind */}
+              <RoomViewHeader
+                room={room}
+                onBack={onBack}
+              />
+
+              {/* Gradient overlay for status bar readability */}
+              <LinearGradient
+                colors={[
+                  'rgba(0, 0, 0, 0.6)',
+                  'rgba(0, 0, 0, 0.4)',
+                  'rgba(0, 0, 0, 0.2)',
+                  'transparent',
+                ]}
+                locations={[0, 0.3, 0.6, 1]}
+                style={styles.headerGradient}
+                pointerEvents="none"
+              />
             </AIAssistantProvider>
           </ReplyProvider>
         </SafeAreaView>
@@ -221,5 +234,13 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'transparent',
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+    zIndex: 5, // Below pills (zIndex: 10) so they blur it instead of being darkened
   },
 });

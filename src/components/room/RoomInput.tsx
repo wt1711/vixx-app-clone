@@ -8,10 +8,9 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
-  Image,
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { Send, ImageIcon, X, Lightbulb } from 'lucide-react-native';
+import { Send, ImageIcon, X, Lightbulb, Sparkles } from 'lucide-react-native';
 import { useAIAssistant } from '../../context/AIAssistantContext';
 import { useReply } from '../../context/ReplyContext';
 import { EventType, Room } from 'matrix-js-sdk';
@@ -42,31 +41,80 @@ export function RoomInput({ room }: RoomInputProps) {
   } = useAIAssistant();
   const { replyingTo, clearReply } = useReply();
 
-  // Rotation animation for vixx logo
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  // Pulse animation for sparkles icon
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Height animations for reasoning pill and reply bar
+  const reasoningHeight = useRef(new Animated.Value(0)).current;
+  const replyHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(reasoningHeight, {
+      toValue: parsedResponse?.reason ? 1 : 0,
+      useNativeDriver: false,
+      friction: 10,
+      tension: 80,
+    }).start();
+  }, [parsedResponse?.reason, reasoningHeight]);
+
+  useEffect(() => {
+    Animated.spring(replyHeight, {
+      toValue: replyingTo ? 1 : 0,
+      useNativeDriver: false,
+      friction: 10,
+      tension: 80,
+    }).start();
+  }, [replyingTo, replyHeight]);
+
+  const reasoningAnimatedStyle = {
+    maxHeight: reasoningHeight.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 100],
+    }),
+    opacity: reasoningHeight,
+    marginBottom: reasoningHeight.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 8],
+    }),
+  };
+
+  const replyAnimatedStyle = {
+    maxHeight: replyHeight.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 60],
+    }),
+    opacity: replyHeight,
+    marginBottom: replyHeight.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 8],
+    }),
+  };
 
   useEffect(() => {
     if (isGeneratingResponse) {
       const animation = Animated.loop(
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 1000,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.3,
+            duration: 400,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 400,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
       );
       animation.start();
       return () => animation.stop();
     } else {
-      rotateAnim.setValue(0);
+      pulseAnim.setValue(1);
       setGenerationType(null);
     }
-  }, [isGeneratingResponse, rotateAnim]);
-
-  const spin = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  }, [isGeneratingResponse, pulseAnim]);
 
   // Use context's inputValue as the text input
   const inputText = inputValue;
@@ -126,40 +174,44 @@ export function RoomInput({ room }: RoomInputProps) {
 
   return (
     <View style={styles.container}>
-      {/* AI Reasoning Pill */}
-      {parsedResponse && parsedResponse.reason && (
-        <View style={styles.reasoningPill}>
-          <View style={styles.reasoningIcon}>
-            <Lightbulb color={colors.text.primary} size={18} />
-          </View>
-          <Text style={styles.reasoningText}>{parsedResponse.reason}</Text>
-          <TouchableOpacity onPress={clearParsedResponse} style={styles.reasoningClose}>
-            <X color={colors.text.secondary} size={16} />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Reply Bar */}
-      {replyingTo && (
-        <View style={styles.replyBar}>
-          <View style={styles.replyBarContent}>
-            <View style={styles.replyBarIndicator} />
-            <View style={styles.replyBarTextContainer}>
-              <Text style={styles.replyBarLabel}>
-                Replying to
-              </Text>
-              <Text style={styles.replyBarMessage} numberOfLines={1}>
-                {replyingTo.msgtype === MsgType.Image
-                  ? 'Photo'
-                  : replyingTo.content}
-              </Text>
+      {/* AI Reasoning Pill - Animated */}
+      <Animated.View style={[styles.reasoningPillWrapper, reasoningAnimatedStyle]}>
+        {parsedResponse?.reason && (
+          <View style={styles.reasoningPill}>
+            <View style={styles.reasoningIcon}>
+              <Lightbulb color={colors.text.primary} size={18} />
             </View>
+            <Text style={styles.reasoningText}>{parsedResponse.reason}</Text>
+            <TouchableOpacity onPress={clearParsedResponse} style={styles.reasoningClose}>
+              <X color={colors.text.secondary} size={16} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={clearReply} style={styles.replyBarClose}>
-            <X color={colors.text.secondary} size={18} />
-          </TouchableOpacity>
-        </View>
-      )}
+        )}
+      </Animated.View>
+
+      {/* Reply Bar - Animated */}
+      <Animated.View style={[styles.replyBarWrapper, replyAnimatedStyle]}>
+        {replyingTo && (
+          <View style={styles.replyBar}>
+            <View style={styles.replyBarContent}>
+              <View style={styles.replyBarIndicator} />
+              <View style={styles.replyBarTextContainer}>
+                <Text style={styles.replyBarLabel}>
+                  Replying to
+                </Text>
+                <Text style={styles.replyBarMessage} numberOfLines={1}>
+                  {replyingTo.msgtype === MsgType.Image
+                    ? 'Photo'
+                    : replyingTo.content}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={clearReply} style={styles.replyBarClose}>
+              <X color={colors.text.secondary} size={18} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </Animated.View>
 
       {/* Input Row - Unified Bar + Separate Send */}
       <View style={styles.inputRow}>
@@ -207,25 +259,20 @@ export function RoomInput({ room }: RoomInputProps) {
             onPress={handleGenerateWithoutIdea}
             disabled={isGeneratingResponse}
           >
-            <Animated.View style={generationType === 'withoutIdea' ? { transform: [{ rotate: spin }] } : undefined}>
-              <Image
-                source={require('../../../assets/logo.png')}
-                style={styles.vixxLogo}
-              />
+            <Animated.View style={generationType === 'withoutIdea' ? { transform: [{ scale: pulseAnim }] } : undefined}>
+              <Sparkles color={colors.accent.primary} size={20} />
             </Animated.View>
           </TouchableOpacity>
         </View>
 
         {/* Separate Send Button */}
         <View style={styles.sendPillContainer}>
-          {/* Blur background layer */}
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="dark"
             blurAmount={25}
             reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
           />
-          {/* Border highlight overlay */}
           <View style={styles.glassHighlightRound} pointerEvents="none" />
           <TouchableOpacity
             style={[styles.sendPillContent, (!inputText.trim() || sending) && styles.pillDisabled]}
@@ -313,8 +360,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    overflow: 'hidden', // Required for BlurView borderRadius
-    // Outer shadow for depth
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -345,13 +391,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   aiButton: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 18,
+    // No background - orange icon only
   },
-  vixxLogo: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  // Wrapper for animated height
+  replyBarWrapper: {
+    overflow: 'hidden',
   },
   replyBar: {
     width: '100%',
@@ -361,7 +405,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    marginBottom: 8,
     borderWidth: 1,
     borderColor: colors.transparent.white15,
   },
@@ -394,6 +437,10 @@ const styles = StyleSheet.create({
     padding: 4,
     marginLeft: 8,
   },
+  // Wrapper for animated height
+  reasoningPillWrapper: {
+    overflow: 'hidden',
+  },
   // AI Reasoning Pill styles
   reasoningPill: {
     width: '100%',
@@ -405,7 +452,6 @@ const styles = StyleSheet.create({
     borderColor: colors.liquidGlass.border,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    marginBottom: 8,
   },
   reasoningIcon: {
     marginRight: 10,

@@ -25,7 +25,7 @@ export const colors = {
 
   // Accent / Brand
   accent: {
-    primary: '#FF6B35',
+    primary: '#A34400',
     purple: '#A855F7',
     instagram: '#E4405F',
   },
