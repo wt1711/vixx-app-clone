@@ -5,9 +5,7 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageViewing from 'react-native-image-viewing';
 import { getMatrixClient } from '../../matrixClient';
 import { getEventReactions, getReactionContent } from '../../utils/room';
@@ -19,12 +17,8 @@ import { useRoomTimeline, useTimelineScroll } from '../../hooks/room';
 import { useReply } from '../../context/ReplyContext';
 import { colors } from '../../theme';
 
-export function RoomTimeline({ room, eventId, inputAreaHeight = 0 }: RoomTimelineProps) {
+export function RoomTimeline({ room, eventId }: RoomTimelineProps) {
   const mx = getMatrixClient();
-  const insets = useSafeAreaInsets();
-
-  // Header height: safe area top + padding (8) + pill height (44) + padding (12)
-  const headerHeight = insets.top + 64;
 
   // ─── Data Loading ───────────────────────────────────────────────────────────
   const {
@@ -258,13 +252,7 @@ export function RoomTimeline({ room, eventId, inputAreaHeight = 0 }: RoomTimelin
         inverted
         renderItem={renderMessage}
         keyExtractor={(item) => item.eventId}
-        contentContainerStyle={[
-          styles.listContent,
-          // For inverted list: paddingBottom = top (header), paddingTop = bottom (input)
-          { paddingBottom: headerHeight, paddingTop: inputAreaHeight },
-        ]}
-        // iOS: allows content to scroll behind header with rubber banding
-        contentInset={Platform.OS === 'ios' ? { top: 0, bottom: 0 } : undefined}
+        contentContainerStyle={styles.listContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         ListHeaderComponent={renderHeader}
@@ -306,6 +294,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
+    paddingTop: 80, // Space for floating input (inverted list, so this is visual bottom)
+    paddingBottom: 16,
     paddingHorizontal: 16,
   },
   loadingMoreContainer: {

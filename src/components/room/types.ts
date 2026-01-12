@@ -44,5 +44,4 @@ export type MessageItem = {
 export type RoomTimelineProps = {
   room: Room;
   eventId?: string;
-  inputAreaHeight?: number;
 };

@@ -67,13 +67,13 @@ export const colors = {
 
   // Liquid Glass effect colors (metallic/modern style)
   liquidGlass: {
-    // More translucent - content visible underneath with dark tint
-    background: 'rgba(28, 32, 38, 0.45)',
-    backgroundLight: 'rgba(40, 44, 52, 0.35)',
+    // See-through glass effect
+    background: 'rgba(28, 32, 38, 0.75)',
+    backgroundLight: 'rgba(40, 44, 52, 0.65)',
     // Crisp border - not too bright, just enough definition
     borderTop: 'rgba(255, 255, 255, 0.15)',
     borderBottom: 'rgba(255, 255, 255, 0.05)',
-    border: 'rgba(255, 255, 255, 0.12)',
+    border: 'rgba(255, 255, 255, 0.15)',
     // Inner glow/highlight
     innerGlow: 'rgba(255, 255, 255, 0.08)',
   },

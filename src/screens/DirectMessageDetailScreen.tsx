@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -13,14 +13,13 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Room, MatrixEvent, RoomEvent } from 'matrix-js-sdk';
 import { getMatrixClient } from '../matrixClient';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { RoomTimeline } from '../components/room/RoomTimeline';
 import { RoomInput } from '../components/room/RoomInput';
 import { RoomViewHeader } from '../components/room/RoomViewHeader';
-import { AIAssistantModal } from '../components/ai/AIAssistantModal';
 import { AIAssistantProvider } from '../context/AIAssistantContext';
 import { ReplyProvider } from '../context/ReplyContext';
 import { colors, gradients } from '../theme';
@@ -38,9 +37,7 @@ export function DirectMessageDetailScreen({
 }: DirectMessageDetailScreenProps) {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const mx = getMatrixClient();
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!mx) {
@@ -90,10 +87,6 @@ export function DirectMessageDetailScreen({
     };
   }, [mx, roomId]);
 
-  const handleAIAssistantClick = useCallback(() => {
-    // TODO: Re-enable when payment is implemented
-    setShowAIAssistant(true);
-  }, []);
 
   const swipeGesture = Gesture.Pan()
     .activeOffsetX(50)
@@ -107,7 +100,7 @@ export function DirectMessageDetailScreen({
     })
     .runOnJS(true);
 
-  const keyboardHeight = useKeyboardHeight({ defaultPadding: 0 });
+  const keyboardHeight = useKeyboardHeight({ defaultPadding: 32 });
 
   if (loading) {
     return (
@@ -148,7 +141,7 @@ export function DirectMessageDetailScreen({
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={swipeGesture}>
-        <SafeAreaView style={styles.container} edges={[]}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }} edges={['top']}>
           <LinearGradient
             colors={[...gradients.screenBackground]}
             start={{ x: 0, y: 0 }}
@@ -160,11 +153,10 @@ export function DirectMessageDetailScreen({
               <RoomViewHeader
                 room={room}
                 onBack={onBack}
-                onAIAssistantClick={handleAIAssistantClick}
               />
 
               <View style={styles.keyboardView}>
-                <RoomTimeline room={room} eventId={eventId} inputAreaHeight={70 + insets.bottom} />
+                <RoomTimeline room={room} eventId={eventId} />
 
                 <Animated.View
                   style={[
@@ -176,12 +168,6 @@ export function DirectMessageDetailScreen({
                 </Animated.View>
               </View>
 
-              {/* AI Assistant Modal */}
-              <AIAssistantModal
-                visible={showAIAssistant}
-                onClose={() => setShowAIAssistant(false)}
-                room={room}
-              />
             </AIAssistantProvider>
           </ReplyProvider>
         </SafeAreaView>
@@ -193,7 +179,6 @@ export function DirectMessageDetailScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
   },
   loadingContainer: {
     flex: 1,
@@ -234,6 +219,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
     backgroundColor: 'transparent',
   },
 });
