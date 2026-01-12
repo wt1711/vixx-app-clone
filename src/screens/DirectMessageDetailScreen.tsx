@@ -140,14 +140,16 @@ export function DirectMessageDetailScreen({
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      {/* Background gradient */}
+      <LinearGradient
+        colors={[...gradients.screenBackground]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
       <GestureDetector gesture={swipeGesture}>
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }} edges={['top']}>
-          <LinearGradient
-            colors={[...gradients.screenBackground]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
           <ReplyProvider>
             <AIAssistantProvider room={room} isMobile={true}>
               <View style={styles.keyboardView}>
@@ -163,23 +165,10 @@ export function DirectMessageDetailScreen({
                 </Animated.View>
               </View>
 
-              {/* Header AFTER timeline so BlurView can blur the content behind */}
+              {/* Header - highest zIndex */}
               <RoomViewHeader
                 room={room}
                 onBack={onBack}
-              />
-
-              {/* Gradient overlay for status bar readability */}
-              <LinearGradient
-                colors={[
-                  'rgba(0, 0, 0, 0.6)',
-                  'rgba(0, 0, 0, 0.4)',
-                  'rgba(0, 0, 0, 0.2)',
-                  'transparent',
-                ]}
-                locations={[0, 0.3, 0.6, 1]}
-                style={styles.headerGradient}
-                pointerEvents="none"
               />
             </AIAssistantProvider>
           </ReplyProvider>
@@ -234,13 +223,5 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'transparent',
-  },
-  headerGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 140,
-    zIndex: 5, // Below pills (zIndex: 10) so they blur it instead of being darkened
   },
 });
