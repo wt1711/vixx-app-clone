@@ -12,6 +12,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
 import { X } from 'lucide-react-native';
 import { colors } from '../theme';
+import { CarbonFiberTexture } from './ui/NoiseTexture';
 
 interface LoginCredentialsModalProps {
   visible: boolean;
@@ -50,11 +51,13 @@ const LoginCredentialsModal = ({
     >
       <SafeAreaProvider>
         <SafeAreaView edges={['top', 'bottom']} style={styles.modalContainer}>
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }]} />
+          <CarbonFiberTexture opacity={0.6} scale={0.5} />
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="dark"
             blurAmount={20}
-            reducedTransparencyFallbackColor={colors.background.primary}
+            reducedTransparencyFallbackColor="#000000"
           />
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
