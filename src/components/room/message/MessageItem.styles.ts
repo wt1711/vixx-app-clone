@@ -20,7 +20,6 @@ export const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   messageBubble: {
-    borderRadius: 20,
     overflow: 'hidden',
     shadowColor: colors.background.black,
     shadowOffset: { width: 0, height: 6 },
@@ -30,13 +29,23 @@ export const styles = StyleSheet.create({
   },
   messageBubbleOwn: {
     backgroundColor: colors.message.own,
+    borderRadius: 20,
+    // Slightly sharper bottom-right for own messages
+    borderBottomRightRadius: 6,
   },
   messageBubbleOther: {
     backgroundColor: colors.message.other,
+    // Notched corner: sharp bottom-left, rounded elsewhere
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.message.otherBorder,
     shadowColor: colors.shadow.dark,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
     elevation: 4,
   },
   messageBubbleContent: {
@@ -60,8 +69,17 @@ export const styles = StyleSheet.create({
   },
   imageContainer: {},
   messageImage: {
-    borderRadius: 20,
     backgroundColor: colors.transparent.white10,
+  },
+  messageImageOwn: {
+    borderRadius: 20,
+    borderBottomRightRadius: 6,
+  },
+  messageImageOther: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 4,
   },
   messageImageWithRatio: {
     maxWidth: 250,
@@ -98,6 +116,5 @@ export const styles = StyleSheet.create({
   },
   replyPreviewOther: {
     alignSelf: 'flex-start',
-    marginLeft: 48, // Account for avatar space
   },
 });

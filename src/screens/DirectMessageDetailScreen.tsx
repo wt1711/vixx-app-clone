@@ -13,7 +13,7 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Room, MatrixEvent, RoomEvent } from 'matrix-js-sdk';
 import { getMatrixClient } from '../matrixClient';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
@@ -40,6 +40,7 @@ export function DirectMessageDetailScreen({
   const [loading, setLoading] = useState(true);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const mx = getMatrixClient();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!mx) {
@@ -106,7 +107,7 @@ export function DirectMessageDetailScreen({
     })
     .runOnJS(true);
 
-  const keyboardHeight = useKeyboardHeight({ defaultPadding: 32 });
+  const keyboardHeight = useKeyboardHeight({ defaultPadding: 0 });
 
   if (loading) {
     return (
@@ -147,7 +148,7 @@ export function DirectMessageDetailScreen({
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={swipeGesture}>
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={styles.container} edges={[]}>
           <LinearGradient
             colors={[...gradients.screenBackground]}
             start={{ x: 0, y: 0 }}
@@ -163,14 +164,12 @@ export function DirectMessageDetailScreen({
               />
 
               <View style={styles.keyboardView}>
-                <View style={styles.timelineContainer}>
-                  <RoomTimeline room={room} eventId={eventId} />
-                </View>
+                <RoomTimeline room={room} eventId={eventId} inputAreaHeight={70 + insets.bottom} />
 
                 <Animated.View
                   style={[
                     styles.inputContainer,
-                    { marginBottom: keyboardHeight },
+                    { bottom: keyboardHeight },
                   ]}
                 >
                   <RoomInput room={room} />
@@ -231,10 +230,10 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  timelineContainer: {
-    flex: 1,
-  },
   inputContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     backgroundColor: 'transparent',
   },
 });

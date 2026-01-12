@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
-import { ArrowLeft, User } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import { ChevronLeft, User } from 'lucide-react-native';
 import { Room } from 'matrix-js-sdk';
 import { getMatrixClient } from '../../matrixClient';
 import { getRoomAvatarUrl } from '../../utils/room';
@@ -19,89 +20,147 @@ export function RoomViewHeader({
 }: // onAIAssistantClick,
 RoomViewHeaderProps) {
   const mx = getMatrixClient();
+  const insets = useSafeAreaInsets();
 
   // Use room.name directly - Matrix SDK handles the display name correctly
-  // This matches the NextJS implementation
   const roomName = room.name || 'Unknown';
 
   // Get avatar from fallback member for direct messages, or room avatar
-  // Get MXC URL and convert to HTTP with authentication token in URL
   const avatarUrl = mx ? getRoomAvatarUrl(mx, room, 96, true) : undefined;
 
+  // Gradient height
+  const gradientHeight = insets.top + 140;
+
   return (
-    <View style={styles.header}>
-      <BlurView
-        style={StyleSheet.absoluteFill}
-        blurType="dark"
-        blurAmount={80}
-        reducedTransparencyFallbackColor={colors.background.primary}
+    <>
+      {/* Dark gradient for status bar area */}
+      <LinearGradient
+        colors={[
+          'rgba(0, 0, 0, 0.7)',
+          'rgba(0, 0, 0, 0.7)',
+          'rgba(0, 0, 0, 0.5)',
+          'rgba(0, 0, 0, 0.2)',
+          'transparent',
+        ]}
+        locations={[0, 0.4, 0.6, 0.85, 1]}
+        style={[styles.gradientOverlay, { height: gradientHeight }]}
+        pointerEvents="none"
       />
-      <View style={styles.headerLeft}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <ArrowLeft color={colors.text.primary} size={24} />
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        {/* Name - Absolute center */}
+        <View style={[styles.centerContainer, { top: insets.top + 8 }]}>
+          <View style={styles.namePill}>
+            <Text style={styles.roomName} numberOfLines={1}>
+              {roomName}
+            </Text>
+          </View>
+        </View>
+
+        {/* Back Button - Left */}
+        <TouchableOpacity onPress={onBack} style={styles.backPill}>
+          <ChevronLeft color={colors.text.primary} size={24} />
         </TouchableOpacity>
 
-        {avatarUrl ? (
-          <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-        ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <User color={colors.text.secondary} size={16} />
-          </View>
-        )}
-        <Text style={styles.roomName} numberOfLines={1}>
-          {roomName}
-        </Text>
+        {/* Avatar - Right */}
+        <View style={styles.avatarPill}>
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+          ) : (
+            <User color={colors.text.secondary} size={20} />
+          )}
+        </View>
       </View>
-
-      {/* <TouchableOpacity
-        onPress={onAIAssistantClick}
-        style={styles.aiButton}
-      >
-        <User color={colors.text.primary} size={24} />
-      </TouchableOpacity> */}
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 5,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.transparent.white10,
-    overflow: 'hidden',
-    backgroundColor: colors.transparent.black30,
+    backgroundColor: 'transparent',
+    // Position absolute to float over content
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
-  backButton: {
-    padding: 4,
-  },
-  headerLeft: {
-    flex: 1,
-    flexDirection: 'row',
+  // Name absolutely centered
+  centerContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    gap: 12,
+    zIndex: 0,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: colors.transparent.white30,
+  // Back button - circular pill
+  backPill: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.liquidGlass.background,
+    borderWidth: 1,
+    borderColor: colors.liquidGlass.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  avatarPlaceholder: {
-    backgroundColor: colors.background.elevated,
+  // Name - center pill (same height as circular pills)
+  namePill: {
+    height: 44,
+    paddingHorizontal: 20,
+    borderRadius: 22,
+    backgroundColor: colors.liquidGlass.background,
+    borderWidth: 1,
+    borderColor: colors.liquidGlass.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   roomName: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     color: colors.text.primary,
+    textAlign: 'center',
   },
-  aiButton: {
-    padding: 8,
+  // Avatar pill - right side
+  avatarPill: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.liquidGlass.background,
+    borderWidth: 1,
+    borderColor: colors.liquidGlass.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });

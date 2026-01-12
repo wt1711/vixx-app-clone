@@ -186,7 +186,7 @@ export function DirectMessageListScreen({
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[...gradients.screenBackground]}
+        colors={['#FAFAFA', '#FAFAFA']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -267,7 +267,7 @@ export function DirectMessageListScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: '#FAFAFA',
   },
   header: {
     flexDirection: 'row',

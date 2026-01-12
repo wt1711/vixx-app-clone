@@ -33,7 +33,10 @@ export const colors = {
   // Message bubbles
   message: {
     own: '#3B82F6',
-    other: '#1A1D24',
+    other: '#2A2D38',
+    otherGradientStart: '#35384A',
+    otherGradientEnd: '#252833',
+    otherBorder: 'rgba(255, 255, 255, 0.08)',
   },
 
   // Borders & Dividers
@@ -60,6 +63,19 @@ export const colors = {
     reactionButtonActive: 'rgba(80, 80, 90, 0.95)',
     roomItem: 'rgba(10, 10, 15, 0.3)',
     roomItemSelected: 'rgba(30, 30, 45, 0.5)',
+  },
+
+  // Liquid Glass effect colors (metallic/modern style)
+  liquidGlass: {
+    // More translucent - content visible underneath with dark tint
+    background: 'rgba(28, 32, 38, 0.45)',
+    backgroundLight: 'rgba(40, 44, 52, 0.35)',
+    // Crisp border - not too bright, just enough definition
+    borderTop: 'rgba(255, 255, 255, 0.15)',
+    borderBottom: 'rgba(255, 255, 255, 0.05)',
+    border: 'rgba(255, 255, 255, 0.12)',
+    // Inner glow/highlight
+    innerGlow: 'rgba(255, 255, 255, 0.08)',
   },
 
   // Shadows

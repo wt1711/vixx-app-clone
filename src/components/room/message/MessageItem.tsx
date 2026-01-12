@@ -12,9 +12,10 @@ import {
   Linking,
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
+import LinearGradient from 'react-native-linear-gradient';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { MessageItem } from '../types';
 import { formatTimeWithDay } from '../../../utils/timeFormatter';
-import { Avatar } from '../../common/Avatar';
 import { ReactionsList } from './Reactions';
 import { ReplyPreview } from './ReplyPreview';
 import { LinkPreview } from './LinkPreview';
@@ -268,15 +269,19 @@ export const MessageItemComponent = React.memo<MessageItemProps>(
 
     const imageStyle = useMemo<StyleProp<ImageStyle>>(() => {
       const { w, h } = item.imageInfo ?? {};
+      const shapeStyle = item.isOwn
+        ? styles.messageImageOwn
+        : styles.messageImageOther;
       if (w && h) {
         return [
           styles.messageImage,
+          shapeStyle,
           styles.messageImageWithRatio,
           { aspectRatio: w / h, maxWidth: 250 },
         ];
       }
-      return [styles.messageImage, styles.messageImageDefault];
-    }, [item.imageInfo]);
+      return [styles.messageImage, shapeStyle, styles.messageImageDefault];
+    }, [item.imageInfo, item.isOwn]);
 
     const containerStyle: StyleProp<ViewStyle> = [
       styles.messageContainer,
@@ -314,6 +319,12 @@ export const MessageItemComponent = React.memo<MessageItemProps>(
         return;
       }
 
+      // Trigger haptic feedback on long press
+      ReactNativeHapticFeedback.trigger('impactMedium', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false,
+      });
+
       messageRef.current.measure((_x, _y, width, height, pageX, pageY) => {
         onLongPress(() => ({ x: pageX, y: pageY, width, height }));
       });
@@ -348,12 +359,6 @@ export const MessageItemComponent = React.memo<MessageItemProps>(
         )}
 
         <View ref={messageRef} style={containerStyle}>
-          {!item.isOwn && (
-            <View style={styles.avatarContainer}>
-              <Avatar avatarUrl={item.avatarUrl} name={item.senderName} />
-            </View>
-          )}
-
           <View style={styles.messageBubbleWrapper}>
             <Pressable
               onPress={onBubblePress}
@@ -361,12 +366,24 @@ export const MessageItemComponent = React.memo<MessageItemProps>(
               delayLongPress={500}
             >
               <View style={bubbleStyle}>
-                <BlurView
-                  style={StyleSheet.absoluteFill}
-                  blurType="dark"
-                  blurAmount={80}
-                  reducedTransparencyFallbackColor={blurFallbackColor}
-                />
+                {item.isOwn ? (
+                  <BlurView
+                    style={StyleSheet.absoluteFill}
+                    blurType="dark"
+                    blurAmount={80}
+                    reducedTransparencyFallbackColor={blurFallbackColor}
+                  />
+                ) : (
+                  <LinearGradient
+                    style={StyleSheet.absoluteFill}
+                    colors={[
+                      colors.message.otherGradientStart,
+                      colors.message.otherGradientEnd,
+                    ]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                  />
+                )}
                 <View style={contentStyle}>
                   <MessageContent
                     item={item}
