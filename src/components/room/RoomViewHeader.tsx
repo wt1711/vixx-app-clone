@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import { BlurView } from '@react-native-community/blur';
 import { ChevronLeft, User } from 'lucide-react-native';
 import { Room } from 'matrix-js-sdk';
 import { getMatrixClient } from '../../matrixClient';
@@ -49,25 +50,52 @@ RoomViewHeaderProps) {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         {/* Name - Absolute center */}
         <View style={[styles.centerContainer, { top: insets.top + 8 }]}>
-          <View style={styles.namePill}>
-            <Text style={styles.roomName} numberOfLines={1}>
-              {roomName}
-            </Text>
+          <View style={styles.namePillContainer}>
+            <BlurView
+              style={StyleSheet.absoluteFill}
+              blurType="dark"
+              blurAmount={25}
+              reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
+            />
+            <View style={styles.glassHighlight} pointerEvents="none" />
+            <View style={styles.namePillContent}>
+              <Text style={styles.roomName} numberOfLines={1}>
+                {roomName}
+              </Text>
+            </View>
           </View>
         </View>
 
         {/* Back Button - Left */}
-        <TouchableOpacity onPress={onBack} style={styles.backPill}>
-          <ChevronLeft color={colors.text.primary} size={24} />
-        </TouchableOpacity>
+        <View style={styles.backPillContainer}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={25}
+            reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
+          />
+          <View style={styles.glassHighlightRound} pointerEvents="none" />
+          <TouchableOpacity onPress={onBack} style={styles.backPillContent}>
+            <ChevronLeft color={colors.text.primary} size={24} />
+          </TouchableOpacity>
+        </View>
 
         {/* Avatar - Right */}
-        <View style={styles.avatarPill}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
-          ) : (
-            <User color={colors.text.secondary} size={20} />
-          )}
+        <View style={styles.avatarPillContainer}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={25}
+            reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
+          />
+          <View style={styles.glassHighlightRound} pointerEvents="none" />
+          <View style={styles.avatarPillContent}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <User color={colors.text.secondary} size={20} />
+            )}
+          </View>
         </View>
       </View>
     </>
@@ -104,37 +132,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 0,
   },
-  // Back button - circular pill
-  backPill: {
+  // Back button container with blur
+  backPillContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.liquidGlass.background,
-    borderWidth: 1,
-    borderColor: colors.liquidGlass.border,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 6,
   },
-  // Name - center pill (same height as circular pills)
-  namePill: {
-    height: 44,
-    paddingHorizontal: 20,
-    borderRadius: 22,
-    backgroundColor: colors.liquidGlass.background,
-    borderWidth: 1,
-    borderColor: colors.liquidGlass.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+  backPillContent: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  // Circular glass highlight for round pills
+  glassHighlightRound: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.25)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  // Name pill container with blur
+  namePillContainer: {
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  namePillContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // Stadium-shaped glass highlight for name pill
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.25)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',
   },
   roomName: {
     fontSize: 14,
@@ -142,21 +200,22 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     textAlign: 'center',
   },
-  // Avatar pill - right side
-  avatarPill: {
+  // Avatar pill container with blur
+  avatarPillContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  avatarPillContent: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.liquidGlass.background,
-    borderWidth: 1,
-    borderColor: colors.liquidGlass.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
   avatarImage: {
     width: 40,

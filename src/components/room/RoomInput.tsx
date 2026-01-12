@@ -10,6 +10,7 @@ import {
   Easing,
   Image,
 } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import { Send, ImageIcon, X, Lightbulb } from 'lucide-react-native';
 import { useAIAssistant } from '../../context/AIAssistantContext';
 import { useReply } from '../../context/ReplyContext';
@@ -164,6 +165,16 @@ export function RoomInput({ room }: RoomInputProps) {
       <View style={styles.inputRow}>
         {/* Unified Input Bar - attach, text, AI */}
         <View style={styles.unifiedInputBar}>
+          {/* Blur background layer */}
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={25}
+            reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
+          />
+          {/* Border highlight overlay for liquid glass effect */}
+          <View style={styles.glassHighlight} pointerEvents="none" />
+
           {/* Left - Attachment Button */}
           <TouchableOpacity
             style={[styles.inputBarIcon, isUploading && styles.pillDisabled]}
@@ -206,20 +217,31 @@ export function RoomInput({ room }: RoomInputProps) {
         </View>
 
         {/* Separate Send Button */}
-        <TouchableOpacity
-          style={[styles.sendPill, (!inputText.trim() || sending) && styles.pillDisabled]}
-          onPress={handleSend}
-          disabled={!inputText.trim() || sending}
-        >
-          {sending ? (
-            <ActivityIndicator size="small" color={colors.text.white} />
-          ) : (
-            <Send
-              color={inputText.trim() ? colors.text.white : colors.text.tertiary}
-              size={22}
-            />
-          )}
-        </TouchableOpacity>
+        <View style={styles.sendPillContainer}>
+          {/* Blur background layer */}
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={25}
+            reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
+          />
+          {/* Border highlight overlay */}
+          <View style={styles.glassHighlightRound} pointerEvents="none" />
+          <TouchableOpacity
+            style={[styles.sendPillContent, (!inputText.trim() || sending) && styles.pillDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim() || sending}
+          >
+            {sending ? (
+              <ActivityIndicator size="small" color={colors.text.white} />
+            ) : (
+              <Send
+                color={inputText.trim() ? colors.text.white : colors.text.tertiary}
+                size={22}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -245,10 +267,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 44,
     borderRadius: 22,
-    backgroundColor: '#232A36',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden', // Required for BlurView borderRadius
     paddingHorizontal: 4,
+    // Outer shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  // Directional border highlights for liquid glass effect
+  glassHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 22,
+    borderWidth: 1,
+    // Light source from top-left: bright at top/left, dim at bottom/right
+    borderTopColor: 'rgba(255, 255, 255, 0.25)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',
   },
   // Icon buttons inside the unified bar
   inputBarIcon: {
@@ -267,14 +308,36 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     maxHeight: 100,
   },
-  // Separate send button pill
-  sendPill: {
+  // Send button container with blur
+  sendPillContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#232A36',
+    overflow: 'hidden', // Required for BlurView borderRadius
+    // Outer shadow for depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  // Circular glass highlight for send button
+  glassHighlightRound: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: 'rgba(255, 255, 255, 0.25)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  // Send button touchable content
+  sendPillContent: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
