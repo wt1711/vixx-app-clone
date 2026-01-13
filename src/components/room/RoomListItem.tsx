@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import { Room } from 'matrix-js-sdk';
 import { formatRelativeTimeWithRecent } from '../../utils/timeFormatter';
 import { getInitials } from '../../utils/stringUtils';
@@ -85,66 +84,40 @@ export function RoomListItem({ item, isSelected, onPress }: RoomListItemProps) {
   return (
     <TouchableOpacity
       onPress={() => onPress(item.roomId)}
-      activeOpacity={0.8}
-      style={styles.roomItemWrapper}
+      activeOpacity={0.6}
+      style={[styles.roomItem, isSelected && styles.roomItemSelected]}
     >
-      <View style={[styles.roomItem, isSelected && styles.roomItemSelected]}>
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="dark"
-          blurAmount={80}
-          reducedTransparencyFallbackColor={colors.background.secondary}
-          pointerEvents="none"
-        />
-        <View style={styles.roomItemContent}>
-          <View style={styles.avatarContainer}>
-            <Avatar avatarUrl={item.avatarUrl} name={item.name} />
-            <UnreadIndicator count={item.unreadCount} />
-          </View>
-          <View style={styles.roomContent}>
-            <View style={styles.roomHeader}>
-              <Text
-                style={[styles.roomName, hasUnread && styles.roomNameUnread]}
-                numberOfLines={1}
-              >
-                {item.name}
-              </Text>
-              <TimeStamp timestamp={item.lastEventTime} hasUnread={hasUnread} />
-            </View>
-            <LastMessage message={item.lastMessage} hasUnread={hasUnread} />
-          </View>
+      <View style={styles.avatarContainer}>
+        <Avatar avatarUrl={item.avatarUrl} name={item.name} />
+        <UnreadIndicator count={item.unreadCount} />
+      </View>
+      <View style={styles.roomContent}>
+        <View style={styles.roomHeader}>
+          <Text
+            style={[styles.roomName, hasUnread && styles.roomNameUnread]}
+            numberOfLines={1}
+          >
+            {item.name}
+          </Text>
+          <TimeStamp timestamp={item.lastEventTime} hasUnread={hasUnread} />
         </View>
+        <LastMessage message={item.lastMessage} hasUnread={hasUnread} />
       </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  roomItemWrapper: {
-    marginBottom: 12,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
   roomItem: {
-    borderWidth: 1,
-    borderColor: colors.transparent.white15,
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: colors.transparent.roomItem,
-    shadowColor: colors.background.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  roomItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.transparent.white10,
   },
   roomItemSelected: {
-    backgroundColor: colors.transparent.roomItemSelected,
+    backgroundColor: colors.transparent.white05,
   },
   avatarContainer: {
     position: 'relative',
@@ -154,8 +127,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    borderWidth: 2,
-    borderColor: colors.transparent.white30,
   },
   avatarPlaceholder: {
     backgroundColor: colors.background.elevated,
@@ -185,6 +156,7 @@ const styles = StyleSheet.create({
   },
   roomContent: {
     flex: 1,
+    marginRight: 8,
   },
   roomHeader: {
     flexDirection: 'row',

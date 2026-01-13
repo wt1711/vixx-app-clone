@@ -2,8 +2,8 @@ export const colors = {
   // Backgrounds
   background: {
     primary: '#0A0A0F',
-    secondary: '#0E0E14',  // near-black (was blue #1A1A2E)
-    tertiary: '#0C0C10',   // near-black (was blue #16213E)
+    secondary: '#1A1A2E',  // dark blue
+    tertiary: '#16213E',   // deeper blue
     elevated: '#2A2A3E',
     header: '#2A2A3E',
     input: '#1A1A2E',
