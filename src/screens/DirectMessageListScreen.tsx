@@ -4,10 +4,12 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Pressable,
   RefreshControl,
   ActivityIndicator,
   Text,
   Image,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
@@ -57,6 +59,52 @@ export function DirectMessageListScreen({
   const insets = useSafeAreaInsets();
   const loadingRef = useRef(false);
   const { handleChatWithFounder, founderAvatar } = useChatWithFounder(onSelectRoom);
+
+  // FAB press animation using standard Animated API
+  const fabScale = useRef(new Animated.Value(1)).current;
+  const fabOpacity = useRef(new Animated.Value(1)).current;
+
+  const handleFabPressIn = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(fabScale, {
+        toValue: 0.9,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+      Animated.spring(fabOpacity, {
+        toValue: 0.8,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+    ]).start();
+  }, [fabScale, fabOpacity]);
+
+  const handleFabPressOut = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(fabScale, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+      Animated.spring(fabOpacity, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+    ]).start();
+  }, [fabScale, fabOpacity]);
+
+  const handleFabPress = useCallback(() => {
+    ReactNativeHapticFeedback.trigger('impactLight', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
+    onOpenPendingInvitations?.();
+  }, [onOpenPendingInvitations]);
 
   // Load room data with async message fetching
   const loadRoomItems = useCallback(async () => {
@@ -254,28 +302,37 @@ export function DirectMessageListScreen({
           />
         </>
       )}
-      {/* FAB - Bottom Right - liquid glass */}
+      {/* FAB - Bottom Right - premium liquid glass with press animation */}
       {invitedRooms.length > 0 ? (
-        <TouchableOpacity
-          onPress={() => {
-            ReactNativeHapticFeedback.trigger('impactLight', {
-              enableVibrateFallback: true,
-              ignoreAndroidSystemSettings: false,
-            });
-            onOpenPendingInvitations?.();
-          }}
-          style={[styles.fab, { bottom: insets.bottom + 24 }]}
-          activeOpacity={0.8}
+        <Animated.View
+          style={[
+            styles.fab,
+            { bottom: insets.bottom + 24 },
+            {
+              transform: [{ scale: fabScale }],
+              opacity: fabOpacity,
+            },
+          ]}
         >
+          {/* Layer 1: BlurView with materialDark for richer glass */}
           <BlurView
             style={StyleSheet.absoluteFill}
-            blurType="dark"
+            blurType="materialDark"
             blurAmount={20}
             reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
           />
+          {/* Layer 2: Directional borders (brighter for premium look) */}
           <View style={styles.fabGlassHighlight} pointerEvents="none" />
-          <Plus color={colors.text.primary} size={28} />
-        </TouchableOpacity>
+          {/* Layer 3: Pressable content */}
+          <Pressable
+            onPress={handleFabPress}
+            onPressIn={handleFabPressIn}
+            onPressOut={handleFabPressOut}
+            style={styles.fabPressable}
+          >
+            <Plus color={colors.text.primary} size={28} />
+          </Pressable>
+        </Animated.View>
       ) : null}
       <ForceLogOutModal visible={showForceLogOut} />
     </View>
@@ -382,9 +439,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 28,
     borderWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    // Brighter directional borders for premium glass effect
+    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderRightColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  fabPressable: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

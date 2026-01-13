@@ -50,6 +50,44 @@ export function RoomInput({ room }: RoomInputProps) {
 
   // Pulse animation for sparkles icon
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  // Color animation for sparkles (0 = orange, 0.33 = purple, 0.66 = cyan, 1 = orange)
+  const colorAnim = useRef(new Animated.Value(0)).current;
+  const [sparkleColor, setSparkleColor] = useState<string>(colors.accent.primary);
+
+  // Interpolate color based on animation value
+  useEffect(() => {
+    const listenerId = colorAnim.addListener(({ value }) => {
+      // Cycle through: orange → purple → cyan → orange
+      const colorStops = [
+        { pos: 0, color: [163, 68, 0] },      // orange (#A34400)
+        { pos: 0.33, color: [168, 85, 247] }, // purple (#A855F7)
+        { pos: 0.66, color: [6, 182, 212] },  // cyan (#06B6D4)
+        { pos: 1, color: [163, 68, 0] },      // back to orange
+      ];
+
+      // Find the two colors to interpolate between
+      let startStop = colorStops[0];
+      let endStop = colorStops[1];
+      for (let i = 0; i < colorStops.length - 1; i++) {
+        if (value >= colorStops[i].pos && value <= colorStops[i + 1].pos) {
+          startStop = colorStops[i];
+          endStop = colorStops[i + 1];
+          break;
+        }
+      }
+
+      // Interpolate
+      const range = endStop.pos - startStop.pos;
+      const progress = range > 0 ? (value - startStop.pos) / range : 0;
+      const r = Math.round(startStop.color[0] + (endStop.color[0] - startStop.color[0]) * progress);
+      const g = Math.round(startStop.color[1] + (endStop.color[1] - startStop.color[1]) * progress);
+      const b = Math.round(startStop.color[2] + (endStop.color[2] - startStop.color[2]) * progress);
+
+      setSparkleColor(`rgb(${r}, ${g}, ${b})`);
+    });
+
+    return () => colorAnim.removeListener(listenerId);
+  }, [colorAnim]);
 
   // Height animations for reasoning pill and reply bar
   const reasoningHeight = useRef(new Animated.Value(0)).current;
@@ -99,7 +137,8 @@ export function RoomInput({ room }: RoomInputProps) {
 
   useEffect(() => {
     if (isGeneratingResponse) {
-      const animation = Animated.loop(
+      // Scale pulse animation
+      const scaleAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
             toValue: 1.3,
@@ -115,13 +154,27 @@ export function RoomInput({ room }: RoomInputProps) {
           }),
         ]),
       );
-      animation.start();
-      return () => animation.stop();
+      // Color cycle animation (orange → purple → cyan → orange)
+      const colorAnimation = Animated.loop(
+        Animated.timing(colorAnim, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        }),
+      );
+      scaleAnimation.start();
+      colorAnimation.start();
+      return () => {
+        scaleAnimation.stop();
+        colorAnimation.stop();
+      };
     } else {
       pulseAnim.setValue(1);
+      colorAnim.setValue(0);
       setGenerationType(null);
     }
-  }, [isGeneratingResponse, pulseAnim]);
+  }, [isGeneratingResponse, pulseAnim, colorAnim]);
 
   // Use context's inputValue as the text input
   const inputText = inputValue;
@@ -185,7 +238,7 @@ export function RoomInput({ room }: RoomInputProps) {
       <Animated.View style={[styles.reasoningPillWrapper, reasoningAnimatedStyle]}>
         {parsedResponse?.reason && (
           <View style={styles.reasoningPill}>
-            {/* Outline only - no fill */}
+            {/* Subtle orange-tinted outline border */}
             <View style={styles.reasoningBorder} pointerEvents="none" />
             <View style={styles.reasoningIcon}>
               <Lightbulb color={colors.text.primary} size={18} />
@@ -271,7 +324,7 @@ export function RoomInput({ room }: RoomInputProps) {
             disabled={isGeneratingResponse}
           >
             <Animated.View style={generationType === 'withoutIdea' ? { transform: [{ scale: pulseAnim }] } : undefined}>
-              <Sparkles color={colors.accent.primary} size={20} />
+              <Sparkles color={isGeneratingResponse ? sparkleColor : colors.accent.primary} size={20} />
             </Animated.View>
           </TouchableOpacity>
         </View>
@@ -297,7 +350,7 @@ export function RoomInput({ room }: RoomInputProps) {
             ) : (
               <Send
                 color={inputText.trim() ? colors.text.white : colors.text.tertiary}
-                size={22}
+                size={20}
               />
             )}
           </TouchableOpacity>
@@ -448,7 +501,7 @@ const styles = StyleSheet.create({
   reasoningPillWrapper: {
     overflow: 'hidden',
   },
-  // AI Reasoning Pill styles - lightweight with subtle background
+  // AI Reasoning Pill styles - with orange gradient tint
   reasoningPill: {
     width: '100%',
     flexDirection: 'row',
@@ -456,8 +509,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    // Subtle dark background to prevent text bleed-through
-    backgroundColor: 'rgba(10, 10, 15, 0.85)',
+    overflow: 'hidden', // Required for gradient borderRadius
   },
   // Subtle outline border
   reasoningBorder: {

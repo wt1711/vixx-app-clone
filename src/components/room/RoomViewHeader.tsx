@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   StyleSheet,
   View,
   Text,
+  Pressable,
   TouchableOpacity,
   Image,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView, VibrancyView } from '@react-native-community/blur';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { ChevronLeft, User } from 'lucide-react-native';
 import { Room } from 'matrix-js-sdk';
 import { getMatrixClient } from '../../matrixClient';
@@ -31,26 +34,88 @@ RoomViewHeaderProps) {
   const roomName = room.name || 'Unknown';
   const avatarUrl = mx ? getRoomAvatarUrl(mx, room, 96, true) : undefined;
 
+  // Press animation for back button using standard Animated API
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 0.9,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+      Animated.spring(opacity, {
+        toValue: 0.8,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+    ]).start();
+  }, [scale, opacity]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+      Animated.spring(opacity, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 100,
+      }),
+    ]).start();
+  }, [scale, opacity]);
+
+  const handlePress = useCallback(() => {
+    ReactNativeHapticFeedback.trigger('impactLight');
+    onBack();
+  }, [onBack]);
+
   return (
     <View style={[styles.header, { paddingTop: insets.top }]}>
-      {/* Solid color overlay - matches list screen */}
-      <View style={[styles.solidOverlay, { top: -insets.top }]} />
-
       {/* Header content */}
       <View style={styles.headerContent}>
-        {/* Back Button - liquid glass pill */}
-        <View style={styles.pillContainer}>
+        {/* Back Button - premium liquid glass pill */}
+        <Animated.View
+          style={[
+            styles.pillContainer,
+            {
+              transform: [{ scale: scale }],
+              opacity: opacity,
+            },
+          ]}
+        >
+          {/* Layer 1: BlurView with materialDark for richer glass */}
           <BlurView
             style={StyleSheet.absoluteFill}
-            blurType="dark"
+            blurType="materialDark"
             blurAmount={20}
             reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
           />
+          {/* Layer 2: VibrancyView for enhanced depth */}
+          <VibrancyView
+            style={StyleSheet.absoluteFill}
+            blurType="materialDark"
+            blurAmount={10}
+          />
+          {/* Layer 3: Directional borders (brighter) */}
           <View style={styles.pillBorder} />
-          <TouchableOpacity onPress={onBack} style={styles.pillContent} activeOpacity={0.7}>
+          {/* Layer 4: Pressable content */}
+          <Pressable
+            onPress={handlePress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={styles.pillContent}
+          >
             <ChevronLeft color={colors.text.primary} size={24} />
-          </TouchableOpacity>
-        </View>
+          </Pressable>
+        </Animated.View>
 
         {/* Avatar + Name - inline, no container */}
         <TouchableOpacity style={styles.profileSection} activeOpacity={0.7}>
@@ -84,14 +149,6 @@ const styles = StyleSheet.create({
     zIndex: 20,
     backgroundColor: 'transparent',
   },
-  solidOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: -5,
-    backgroundColor: 'rgba(13, 13, 13, 0.9)', // #0D0D0D at 90% opacity
-  },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,10 +176,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: PILL_HEIGHT / 2,
     borderWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    // Brighter directional borders for premium glass effect
+    borderTopColor: 'rgba(255, 255, 255, 0.35)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.25)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderRightColor: 'rgba(255, 255, 255, 0.12)',
   },
   pillContent: {
     flex: 1,
