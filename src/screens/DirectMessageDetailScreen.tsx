@@ -20,6 +20,7 @@ import { RoomInput } from '../components/room/RoomInput';
 import { RoomViewHeader } from '../components/room/RoomViewHeader';
 import { AIAssistantProvider } from '../context/AIAssistantContext';
 import { ReplyProvider } from '../context/ReplyContext';
+import { InputHeightProvider } from '../context/InputHeightContext';
 import LinearGradient from 'react-native-linear-gradient';
 import { colors, gradients } from '../theme';
 
@@ -151,24 +152,26 @@ export function DirectMessageDetailScreen({
         <View style={{ flex: 1 }}>
           <ReplyProvider>
             <AIAssistantProvider room={room} isMobile={true}>
-              <View style={styles.keyboardView}>
-                <RoomTimeline room={room} eventId={eventId} />
+              <InputHeightProvider>
+                <View style={styles.keyboardView}>
+                  <RoomTimeline room={room} eventId={eventId} />
 
-                <Animated.View
-                  style={[
-                    styles.inputContainer,
-                    { bottom: keyboardHeight },
-                  ]}
-                >
-                  <RoomInput room={room} />
-                </Animated.View>
-              </View>
+                  <Animated.View
+                    style={[
+                      styles.inputContainer,
+                      { bottom: keyboardHeight },
+                    ]}
+                  >
+                    <RoomInput room={room} />
+                  </Animated.View>
+                </View>
 
-              {/* Header - solid bar with glass pills */}
-              <RoomViewHeader
-                room={room}
-                onBack={onBack}
-              />
+                {/* Header - solid bar with glass pills */}
+                <RoomViewHeader
+                  room={room}
+                  onBack={onBack}
+                />
+              </InputHeightProvider>
             </AIAssistantProvider>
           </ReplyProvider>
         </View>

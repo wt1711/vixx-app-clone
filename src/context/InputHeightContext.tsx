@@ -1,9 +1,8 @@
-import React, { createContext, useContext, ReactNode, useRef, useMemo } from 'react';
-import { Animated } from 'react-native';
+import React, { createContext, useContext, ReactNode, useState, useMemo } from 'react';
 
 type InputHeightContextType = {
-  // Shared animated value - both RoomInput and RoomTimeline use this same instance
-  inputHeightAnim: Animated.Value;
+  inputHeight: number;
+  setInputHeight: (height: number) => void;
 };
 
 const InputHeightContext = createContext<InputHeightContextType | undefined>(undefined);
@@ -13,14 +12,15 @@ type InputHeightProviderProps = {
 };
 
 export function InputHeightProvider({ children }: InputHeightProviderProps) {
-  // Create the animated value once at provider level
-  const inputHeightAnim = useRef(new Animated.Value(0)).current;
+  // Default to approximate base input height (container padding + input row)
+  const [inputHeight, setInputHeight] = useState(60);
 
   const value: InputHeightContextType = useMemo(
     () => ({
-      inputHeightAnim,
+      inputHeight,
+      setInputHeight,
     }),
-    [inputHeightAnim],
+    [inputHeight],
   );
 
   return <InputHeightContext.Provider value={value}>{children}</InputHeightContext.Provider>;

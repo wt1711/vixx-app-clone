@@ -13,6 +13,7 @@ import { BlurView } from '@react-native-community/blur';
 import { Send, ImageIcon, X, Lightbulb, Sparkles } from 'lucide-react-native';
 import { useAIAssistant } from '../../context/AIAssistantContext';
 import { useReply } from '../../context/ReplyContext';
+import { useInputHeight } from '../../context/InputHeightContext';
 import { EventType, Room } from 'matrix-js-sdk';
 import { MsgType, ContentKey } from '../../types/matrix/room';
 import { getMatrixClient } from '../../matrixClient';
@@ -40,6 +41,12 @@ export function RoomInput({ room }: RoomInputProps) {
     clearParsedResponse,
   } = useAIAssistant();
   const { replyingTo, clearReply } = useReply();
+  const { setInputHeight } = useInputHeight();
+
+  // Measure container height and report to context for timeline padding
+  const handleLayout = useCallback((event: { nativeEvent: { layout: { height: number } } }) => {
+    setInputHeight(event.nativeEvent.layout.height);
+  }, [setInputHeight]);
 
   // Pulse animation for sparkles icon
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -173,7 +180,7 @@ export function RoomInput({ room }: RoomInputProps) {
   }, [inputText, mx, room, sending, setInputText, replyingTo, clearReply]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={handleLayout}>
       {/* AI Reasoning Pill - Animated */}
       <Animated.View style={[styles.reasoningPillWrapper, reasoningAnimatedStyle]}>
         {parsedResponse?.reason && (
