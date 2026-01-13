@@ -178,6 +178,8 @@ export function RoomInput({ room }: RoomInputProps) {
       <Animated.View style={[styles.reasoningPillWrapper, reasoningAnimatedStyle]}>
         {parsedResponse?.reason && (
           <View style={styles.reasoningPill}>
+            {/* Outline only - no fill */}
+            <View style={styles.reasoningBorder} pointerEvents="none" />
             <View style={styles.reasoningIcon}>
               <Lightbulb color={colors.text.primary} size={18} />
             </View>
@@ -224,6 +226,8 @@ export function RoomInput({ room }: RoomInputProps) {
             blurAmount={25}
             reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
           />
+          {/* Dark overlay for deeper black */}
+          <View style={styles.darkOverlay} pointerEvents="none" />
           {/* Border highlight overlay for liquid glass effect */}
           <View style={styles.glassHighlight} pointerEvents="none" />
 
@@ -273,6 +277,8 @@ export function RoomInput({ room }: RoomInputProps) {
             blurAmount={25}
             reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
           />
+          {/* Dark overlay for deeper black */}
+          <View style={styles.darkOverlay} pointerEvents="none" />
           <View style={styles.glassHighlightRound} pointerEvents="none" />
           <TouchableOpacity
             style={[styles.sendPillContent, (!inputText.trim() || sending) && styles.pillDisabled]}
@@ -307,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 8,
   },
-  // Unified input bar containing attach, text, and AI
+  // Unified input bar containing attach, text, and AI - RECESSED style
   unifiedInputBar: {
     flex: 1,
     flexDirection: 'row',
@@ -316,14 +322,19 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: 'hidden', // Required for BlurView borderRadius
     paddingHorizontal: 4,
-    // Outer shadow for depth
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    // No outer shadow - recessed elements don't cast shadows
   },
-  // Directional border highlights for liquid glass effect
+  // Dark overlay for deeper black on input elements
+  darkOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 22,
+  },
+  // Subtle visible border for definition
   glassHighlight: {
     position: 'absolute',
     top: 0,
@@ -332,11 +343,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 22,
     borderWidth: 1,
-    // Light source from top-left: bright at top/left, dim at bottom/right
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   // Icon buttons inside the unified bar
   inputBarIcon: {
@@ -355,19 +362,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     maxHeight: 100,
   },
-  // Send button container with blur
+  // Send button container with blur - RECESSED style
   sendPillContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    // No outer shadow - recessed elements don't cast shadows
   },
-  // Circular glass highlight for send button
+  // Subtle visible border for send button
   glassHighlightRound: {
     position: 'absolute',
     top: 0,
@@ -376,10 +379,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 22,
     borderWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   // Send button touchable content
   sendPillContent: {
@@ -441,17 +441,27 @@ const styles = StyleSheet.create({
   reasoningPillWrapper: {
     overflow: 'hidden',
   },
-  // AI Reasoning Pill styles
+  // AI Reasoning Pill styles - lightweight with subtle background
   reasoningPill: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.liquidGlass.background,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.liquidGlass.border,
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
+    // Subtle dark background to prevent text bleed-through
+    backgroundColor: 'rgba(10, 10, 15, 0.85)',
+  },
+  // Subtle outline border
+  reasoningBorder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   reasoningIcon: {
     marginRight: 10,

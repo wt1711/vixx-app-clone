@@ -6,8 +6,6 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageViewing from 'react-native-image-viewing';
 import { getMatrixClient } from '../../matrixClient';
 import { getEventReactions, getReactionContent } from '../../utils/room';
@@ -21,7 +19,6 @@ import { colors } from '../../theme';
 
 export function RoomTimeline({ room, eventId }: RoomTimelineProps) {
   const mx = getMatrixClient();
-  const insets = useSafeAreaInsets();
 
   // ─── Data Loading ───────────────────────────────────────────────────────────
   const {
@@ -269,14 +266,6 @@ export function RoomTimeline({ room, eventId }: RoomTimelineProps) {
         keyboardShouldPersistTaps="handled"
       />
 
-      {/* Top gradient overlay for status bar readability */}
-      <LinearGradient
-        colors={['rgba(0, 0, 0, 0.8)', 'transparent']}
-        locations={[0, 1]}
-        style={[styles.topGradient, { height: insets.top + 70 }]}
-        pointerEvents="none"
-      />
-
       <ScrollToBottomButton visible={showScrollButton} onPress={scrollToBottom} />
 
       <QuickReactionsModal
@@ -318,11 +307,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 12,
     color: colors.text.secondary,
-  },
-  topGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
   },
 });

@@ -12,8 +12,6 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Room, MatrixEvent, RoomEvent } from 'matrix-js-sdk';
 import { getMatrixClient } from '../matrixClient';
 import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
@@ -22,6 +20,7 @@ import { RoomInput } from '../components/room/RoomInput';
 import { RoomViewHeader } from '../components/room/RoomViewHeader';
 import { AIAssistantProvider } from '../context/AIAssistantContext';
 import { ReplyProvider } from '../context/ReplyContext';
+import LinearGradient from 'react-native-linear-gradient';
 import { colors, gradients } from '../theme';
 
 type DirectMessageDetailScreenProps = {
@@ -104,7 +103,7 @@ export function DirectMessageDetailScreen({
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <LinearGradient
           colors={[...gradients.screenBackground]}
           start={{ x: 0, y: 0 }}
@@ -115,13 +114,13 @@ export function DirectMessageDetailScreen({
           <ActivityIndicator size="large" color={colors.accent.primary} />
           <Text style={styles.loadingText}>Loading conversation...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!room) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <LinearGradient
           colors={[...gradients.screenBackground]}
           start={{ x: 0, y: 0 }}
@@ -134,13 +133,13 @@ export function DirectMessageDetailScreen({
             <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* Background gradient */}
+      {/* Gradient background - matches app theme */}
       <LinearGradient
         colors={[...gradients.screenBackground]}
         start={{ x: 0, y: 0 }}
@@ -149,7 +148,7 @@ export function DirectMessageDetailScreen({
       />
 
       <GestureDetector gesture={swipeGesture}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }} edges={['top']}>
+        <View style={{ flex: 1 }}>
           <ReplyProvider>
             <AIAssistantProvider room={room} isMobile={true}>
               <View style={styles.keyboardView}>
@@ -165,14 +164,14 @@ export function DirectMessageDetailScreen({
                 </Animated.View>
               </View>
 
-              {/* Header - highest zIndex */}
+              {/* Header - solid bar with glass pills */}
               <RoomViewHeader
                 room={room}
                 onBack={onBack}
               />
             </AIAssistantProvider>
           </ReplyProvider>
-        </SafeAreaView>
+        </View>
       </GestureDetector>
     </GestureHandlerRootView>
   );
@@ -181,6 +180,7 @@ export function DirectMessageDetailScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background.primary,
   },
   loadingContainer: {
     flex: 1,
