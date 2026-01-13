@@ -10,7 +10,8 @@ import {
   Easing,
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
-import { Send, ImageIcon, X, Lightbulb, Sparkles } from 'lucide-react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Send, ImageIcon, X, Sparkles } from 'lucide-react-native';
 import { useAIAssistant } from '../../context/AIAssistantContext';
 import { useReply } from '../../context/ReplyContext';
 import { useInputHeight } from '../../context/InputHeightContext';
@@ -18,6 +19,7 @@ import { EventType, Room } from 'matrix-js-sdk';
 import { MsgType, ContentKey } from '../../types/matrix/room';
 import { getMatrixClient } from '../../matrixClient';
 import { useImageSender } from '../../hooks/message/useImageSender';
+import { LiquidGlassButton } from '../ui/LiquidGlassButton';
 import { colors } from '../../theme';
 
 type RoomInputProps = {
@@ -189,6 +191,7 @@ export function RoomInput({ room }: RoomInputProps) {
   }, [parsedResponse, clearParsedResponse, setInputText]);
 
   const handleGenerateWithoutIdea = useCallback(() => {
+    ReactNativeHapticFeedback.trigger('impactLight');
     setGenerationType('withoutIdea');
     generateInitialResponse();
   }, [generateInitialResponse]);
@@ -238,11 +241,7 @@ export function RoomInput({ room }: RoomInputProps) {
       <Animated.View style={[styles.reasoningPillWrapper, reasoningAnimatedStyle]}>
         {parsedResponse?.reason && (
           <View style={styles.reasoningPill}>
-            {/* Subtle orange-tinted outline border */}
             <View style={styles.reasoningBorder} pointerEvents="none" />
-            <View style={styles.reasoningIcon}>
-              <Lightbulb color={colors.text.primary} size={18} />
-            </View>
             <Text style={styles.reasoningText}>{parsedResponse.reason}</Text>
             <TouchableOpacity onPress={clearParsedResponse} style={styles.reasoningClose}>
               <X color={colors.text.secondary} size={16} />
@@ -298,16 +297,16 @@ export function RoomInput({ room }: RoomInputProps) {
             disabled={isUploading}
           >
             {isUploading ? (
-              <ActivityIndicator size="small" color={colors.text.white} />
+              <ActivityIndicator size="small" color={colors.text.messageOwn} />
             ) : (
-              <ImageIcon color={colors.text.white} size={20} />
+              <ImageIcon color={colors.text.messageOwn} size={20} />
             )}
           </TouchableOpacity>
 
           {/* Center - Text Input */}
           <TextInput
             style={styles.inputBarText}
-            placeholder="flirt with her..."
+            placeholder="nhắn tin"
             placeholderTextColor={colors.text.placeholder}
             value={inputText}
             onChangeText={handleTextChange}
@@ -329,32 +328,23 @@ export function RoomInput({ room }: RoomInputProps) {
           </TouchableOpacity>
         </View>
 
-        {/* Separate Send Button */}
-        <View style={styles.sendPillContainer}>
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="dark"
-            blurAmount={25}
-            reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
-          />
-          {/* Dark overlay for deeper black */}
-          <View style={styles.darkOverlay} pointerEvents="none" />
-          <View style={styles.glassHighlightRound} pointerEvents="none" />
-          <TouchableOpacity
-            style={[styles.sendPillContent, (!inputText.trim() || sending) && styles.pillDisabled]}
-            onPress={handleSend}
-            disabled={!inputText.trim() || sending}
-          >
-            {sending ? (
-              <ActivityIndicator size="small" color={colors.text.white} />
-            ) : (
-              <Send
-                color={inputText.trim() ? colors.text.white : colors.text.tertiary}
-                size={20}
-              />
-            )}
-          </TouchableOpacity>
-        </View>
+        {/* Separate Send Button - Liquid Glass */}
+        <LiquidGlassButton
+          style={[styles.sendPillContainer, (!inputText.trim() || sending) && styles.pillDisabled]}
+          contentStyle={styles.sendPillContent}
+          borderRadius={22}
+          onPress={handleSend}
+          disabled={!inputText.trim() || sending}
+        >
+          {sending ? (
+            <ActivityIndicator size="small" color={colors.text.messageOwn} />
+          ) : (
+            <Send
+              color={inputText.trim() ? colors.text.messageOwn : colors.text.tertiary}
+              size={20}
+            />
+          )}
+        </LiquidGlassButton>
       </View>
     </View>
   );
@@ -394,7 +384,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: 22,
   },
-  // Subtle visible border for definition
+  // Subtle uniform border for recessed look
   glassHighlight: {
     position: 'absolute',
     top: 0,
@@ -422,30 +412,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     maxHeight: 100,
   },
-  // Send button container with blur - RECESSED style
+  // Send button container - Liquid Glass
   sendPillContainer: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    overflow: 'hidden',
-    // No outer shadow - recessed elements don't cast shadows
   },
-  // Subtle visible border for send button
-  glassHighlightRound: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  // Send button touchable content
+  // Send button content - override default padding to fit 44x44
   sendPillContent: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
   pillDisabled: {
     opacity: 0.5,
@@ -501,7 +479,7 @@ const styles = StyleSheet.create({
   reasoningPillWrapper: {
     overflow: 'hidden',
   },
-  // AI Reasoning Pill styles - with orange gradient tint
+  // AI Reasoning Pill styles - lighter glass to lift off dark input
   reasoningPill: {
     width: '100%',
     flexDirection: 'row',
@@ -509,9 +487,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    overflow: 'hidden', // Required for gradient borderRadius
+    overflow: 'hidden',
+    backgroundColor: '#2A2A3E', // lighter smoked glass
   },
-  // Subtle outline border
+  // Subtle outline border with slight violet tint
   reasoningBorder: {
     position: 'absolute',
     top: 0,
@@ -520,15 +499,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  reasoningIcon: {
-    marginRight: 10,
+    borderTopColor: 'rgba(180, 140, 220, 0.15)',    // violet tint top
+    borderLeftColor: 'rgba(180, 140, 220, 0.10)',   // violet tint left
+    borderBottomColor: 'rgba(200, 160, 240, 0.20)', // brighter violet bottom
+    borderRightColor: 'rgba(180, 140, 220, 0.12)',  // violet tint right
   },
   reasoningText: {
     flex: 1,
     fontSize: 13,
-    color: colors.text.primary,
+    color: colors.text.secondary,
     lineHeight: 18,
   },
   reasoningClose: {

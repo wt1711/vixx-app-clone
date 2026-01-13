@@ -4,17 +4,17 @@ import {
   View,
   FlatList,
   TouchableOpacity,
-  Pressable,
   RefreshControl,
   ActivityIndicator,
   Text,
   Image,
-  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
+import { CarbonFiberTexture } from '../components/ui/NoiseTexture';
 import { Settings, Plus } from 'lucide-react-native';
+import { LiquidGlassButton } from '../components/ui/LiquidGlassButton';
 import { useDirectRooms } from '../hooks/room';
 import { getMatrixClient } from '../matrixClient';
 import {
@@ -59,44 +59,6 @@ export function DirectMessageListScreen({
   const insets = useSafeAreaInsets();
   const loadingRef = useRef(false);
   const { handleChatWithFounder, founderAvatar } = useChatWithFounder(onSelectRoom);
-
-  // FAB press animation using standard Animated API
-  const fabScale = useRef(new Animated.Value(1)).current;
-  const fabOpacity = useRef(new Animated.Value(1)).current;
-
-  const handleFabPressIn = useCallback(() => {
-    Animated.parallel([
-      Animated.spring(fabScale, {
-        toValue: 0.9,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-      Animated.spring(fabOpacity, {
-        toValue: 0.8,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-    ]).start();
-  }, [fabScale, fabOpacity]);
-
-  const handleFabPressOut = useCallback(() => {
-    Animated.parallel([
-      Animated.spring(fabScale, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-      Animated.spring(fabOpacity, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-    ]).start();
-  }, [fabScale, fabOpacity]);
 
   const handleFabPress = useCallback(() => {
     ReactNativeHapticFeedback.trigger('impactLight', {
@@ -233,27 +195,33 @@ export function DirectMessageListScreen({
 
   return (
     <View style={styles.container}>
-      {/* Subtle gradient for glass refraction effect */}
-      <LinearGradient
-        colors={['#0D0D0D', '#151518', '#0D0D0D']}
-        locations={[0, 0.5, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      {/* Solid black background */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }]} />
+      {/* Carbon fiber weave texture */}
+      <CarbonFiberTexture opacity={0.4} scale={0.5} />
       {syncing ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.accent.primary} />
+          <ActivityIndicator size={20} color={colors.accent.primary} />
           <Text style={styles.loadingText}>Syncing your account...</Text>
         </View>
       ) : null}
       {roomItems.length === 0 ? (
-        <EmptyState
-          title="Welcome to VIXX"
-          subtitle="Click + to add conversation"
-          actionLabel={onCreateChat ? 'Create Chat' : undefined}
-          onAction={onCreateChat}
-        />
+        <View style={styles.emptyStateContainer}>
+          <EmptyState
+            title="Welcome to VIXX"
+            subtitle="Tap + to Add Chat"
+            actionLabel={onCreateChat ? 'Create Chat' : undefined}
+            onAction={onCreateChat}
+          />
+          <LiquidGlassButton
+            style={styles.emptyStateButton}
+            contentStyle={styles.fabContent}
+            borderRadius={28}
+            onPress={handleFabPress}
+          >
+            <Plus color={colors.text.primary} size={28} />
+          </LiquidGlassButton>
+        </View>
       ) : (
         <>
           <View style={[styles.sectionHeaderRow, { paddingTop: insets.top + 16 }]}>
@@ -262,11 +230,13 @@ export function DirectMessageListScreen({
             <View style={styles.headerPill}>
               <BlurView
                 style={StyleSheet.absoluteFill}
-                blurType="dark"
-                blurAmount={20}
-                reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
+                blurType="thinMaterialDark"
+                blurAmount={25}
+                reducedTransparencyFallbackColor="rgba(30, 35, 45, 0.9)"
               />
-              {/* Glass highlight border overlay */}
+              {/* Dark overlay for deeper black */}
+              <View style={styles.pillDarkOverlay} pointerEvents="none" />
+              {/* Subtle border */}
               <View style={styles.pillGlassHighlight} pointerEvents="none" />
               <TouchableOpacity
                 onPress={handleChatWithFounder}
@@ -302,37 +272,16 @@ export function DirectMessageListScreen({
           />
         </>
       )}
-      {/* FAB - Bottom Right - premium liquid glass with press animation */}
-      {invitedRooms.length > 0 ? (
-        <Animated.View
-          style={[
-            styles.fab,
-            { bottom: insets.bottom + 24 },
-            {
-              transform: [{ scale: fabScale }],
-              opacity: fabOpacity,
-            },
-          ]}
+      {/* FAB - Bottom Right - Liquid Glass with fallback */}
+      {roomItems.length > 0 ? (
+        <LiquidGlassButton
+          style={[styles.fab, { bottom: insets.bottom + 24 }]}
+          contentStyle={styles.fabContent}
+          borderRadius={28}
+          onPress={handleFabPress}
         >
-          {/* Layer 1: BlurView with materialDark for richer glass */}
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="materialDark"
-            blurAmount={20}
-            reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
-          />
-          {/* Layer 2: Directional borders (brighter for premium look) */}
-          <View style={styles.fabGlassHighlight} pointerEvents="none" />
-          {/* Layer 3: Pressable content */}
-          <Pressable
-            onPress={handleFabPress}
-            onPressIn={handleFabPressIn}
-            onPressOut={handleFabPressOut}
-            style={styles.fabPressable}
-          >
-            <Plus color={colors.text.primary} size={28} />
-          </Pressable>
-        </Animated.View>
+          <Plus color={colors.text.primary} size={28} />
+        </LiquidGlassButton>
       ) : null}
       <ForceLogOutModal visible={showForceLogOut} />
     </View>
@@ -342,7 +291,7 @@ export function DirectMessageListScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: '#000000',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -376,24 +325,21 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    // No shadow - recessed dark style
+  },
+  pillDarkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 22,
   },
   pillGlassHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
     borderRadius: 22,
     borderWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.18)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderRightColor: 'rgba(255, 255, 255, 0.10)',
   },
   pillButton: {
     width: 44,
@@ -421,34 +367,20 @@ const styles = StyleSheet.create({
     right: 24,
     width: 56,
     height: 56,
-    borderRadius: 28,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
   },
-  fabGlassHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 28,
-    borderWidth: 1,
-    // Brighter directional borders for premium glass effect
-    borderTopColor: 'rgba(255, 255, 255, 0.4)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.3)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-    borderRightColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  fabPressable: {
+  fabContent: {
     flex: 1,
-    width: '100%',
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  emptyStateContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyStateButton: {
+    marginTop: 24,
+    width: 56,
+    height: 56,
   },
 });
