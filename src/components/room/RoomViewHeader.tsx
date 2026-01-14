@@ -1,16 +1,14 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import {
   StyleSheet,
   View,
   Text,
-  Pressable,
   TouchableOpacity,
   Image,
-  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BlurView, VibrancyView } from '@react-native-community/blur';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import LinearGradient from 'react-native-linear-gradient';
+import { LiquidGlassButton } from '../ui/LiquidGlassButton';
 import { ChevronLeft, User } from 'lucide-react-native';
 import { Room } from 'matrix-js-sdk';
 import { getMatrixClient } from '../../matrixClient';
@@ -34,102 +32,52 @@ RoomViewHeaderProps) {
   const roomName = room.name || 'Unknown';
   const avatarUrl = mx ? getRoomAvatarUrl(mx, room, 96, true) : undefined;
 
-  // Press animation for back button using standard Animated API
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = useCallback(() => {
-    Animated.parallel([
-      Animated.spring(scale, {
-        toValue: 0.9,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-      Animated.spring(opacity, {
-        toValue: 0.8,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-    ]).start();
-  }, [scale, opacity]);
-
-  const handlePressOut = useCallback(() => {
-    Animated.parallel([
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-      Animated.spring(opacity, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 100,
-      }),
-    ]).start();
-  }, [scale, opacity]);
-
   const handlePress = useCallback(() => {
-    ReactNativeHapticFeedback.trigger('impactLight');
     onBack();
   }, [onBack]);
 
+  // Calculate overlay height: safe area + padding + pill height + padding + 5px
+  const overlayHeight = insets.top + 6 + PILL_HEIGHT + 6 + 5;
+
   return (
     <View style={[styles.header, { paddingTop: insets.top }]}>
-      {/* Header content */}
+      {/* Gradient overlay - 85% at top with smooth fade for glass pill effect */}
+      <LinearGradient
+        colors={['rgba(0, 0, 0, 0.85)', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0)']}
+        locations={[0, 0.6, 1]}
+        style={[styles.gradientOverlay, { height: overlayHeight }]}
+        pointerEvents="none"
+      />
       <View style={styles.headerContent}>
-        {/* Back Button - premium liquid glass pill */}
-        <Animated.View
-          style={[
-            styles.pillContainer,
-            {
-              transform: [{ scale: scale }],
-              opacity: opacity,
-            },
-          ]}
+        {/* Back button - iOS Liquid Glass */}
+        <LiquidGlassButton
+          style={styles.backPill}
+          contentStyle={styles.backPillContent}
+          borderRadius={PILL_HEIGHT / 2}
+          onPress={handlePress}
         >
-          {/* Layer 1: BlurView with materialDark for richer glass */}
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="materialDark"
-            blurAmount={20}
-            reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
-          />
-          {/* Layer 2: VibrancyView for enhanced depth */}
-          <VibrancyView
-            style={StyleSheet.absoluteFill}
-            blurType="materialDark"
-            blurAmount={10}
-          />
-          {/* Layer 3: Directional borders (brighter) */}
-          <View style={styles.pillBorder} />
-          {/* Layer 4: Pressable content */}
-          <Pressable
-            onPress={handlePress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            style={styles.pillContent}
-          >
-            <ChevronLeft color={colors.text.primary} size={24} />
-          </Pressable>
-        </Animated.View>
+          <ChevronLeft color={colors.text.primary} size={24} />
+        </LiquidGlassButton>
 
-        {/* Avatar + Name - inline, no container */}
-        <TouchableOpacity style={styles.profileSection} activeOpacity={0.7}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <User color={colors.text.secondary} size={16} />
-            </View>
-          )}
-          <Text style={styles.roomName} numberOfLines={1}>
-            {roomName}
-          </Text>
-        </TouchableOpacity>
+        {/* Profile pill - iOS Liquid Glass */}
+        <LiquidGlassButton
+          style={styles.profilePill}
+          contentStyle={styles.profilePillContent}
+          borderRadius={PILL_HEIGHT / 2}
+        >
+          <TouchableOpacity style={styles.profileSection} activeOpacity={0.7}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+            ) : (
+              <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                <User color={colors.text.secondary} size={16} />
+              </View>
+            )}
+            <Text style={styles.roomName} numberOfLines={1}>
+              {roomName}
+            </Text>
+          </TouchableOpacity>
+        </LiquidGlassButton>
 
         {/* Spacer for balance */}
         <View style={styles.spacer} />
@@ -149,48 +97,41 @@ const styles = StyleSheet.create({
     zIndex: 20,
     backgroundColor: 'transparent',
   },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    gap: 10,
-  },
-  // Back button - liquid glass pill (matches SettingsScreen)
-  pillContainer: {
-    width: PILL_HEIGHT,
-    height: PILL_HEIGHT,
-    borderRadius: PILL_HEIGHT / 2,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  pillBorder: {
+  gradientOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    borderRadius: PILL_HEIGHT / 2,
-    borderWidth: 1,
-    // Brighter directional borders for premium glass effect
-    borderTopColor: 'rgba(255, 255, 255, 0.35)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.25)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-    borderRightColor: 'rgba(255, 255, 255, 0.12)',
   },
-  pillContent: {
-    flex: 1,
-    justifyContent: 'center',
+  headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    gap: 10,
   },
-  // Profile section - inline avatar + name (no container)
+  backPill: {
+    width: PILL_HEIGHT,
+    height: PILL_HEIGHT,
+  },
+  backPillContent: {
+    flex: 1,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  profilePill: {
+    height: PILL_HEIGHT,
+  },
+  profilePillContent: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingLeft: 6,
+    paddingRight: 16,
+    height: PILL_HEIGHT,
     gap: 10,
   },
   avatar: {
