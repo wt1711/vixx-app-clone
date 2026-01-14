@@ -20,18 +20,19 @@ export const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   messageBubble: {
-    overflow: 'hidden',
-    shadowColor: colors.background.black,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.55,
-    shadowRadius: 20,
-    elevation: 6,
+    // Note: removed overflow: 'hidden' to prevent shadow clipping issues
   },
   messageBubbleOwn: {
     backgroundColor: colors.message.own,
     borderRadius: 20,
     // Slightly sharper bottom-right for own messages
     borderBottomRightRadius: 6,
+    // Subtle glow to lift off carbon fibre background
+    shadowColor: '#00FFFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
   },
   messageBubbleOther: {
     backgroundColor: colors.message.other,
@@ -40,17 +41,11 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.message.otherBorder,
-    shadowColor: colors.shadow.dark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 4,
   },
   messageBubbleContent: {
     paddingHorizontal: 16,
     paddingVertical: 10,
+    overflow: 'hidden',
   },
   messageBubbleContentImage: {
     paddingHorizontal: 0,
@@ -116,5 +111,58 @@ export const styles = StyleSheet.create({
   },
   replyPreviewOther: {
     alignSelf: 'flex-start',
+  },
+  glassBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',    // subtle white top highlight
+    borderLeftColor: 'rgba(255, 255, 255, 0.05)',   // subtle white left
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)', // white catchlight bottom
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',  // white catchlight right
+  },
+  stealthBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    borderBottomRightRadius: 6,
+    borderWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',   // subtle white top
+    borderLeftColor: 'rgba(255, 255, 255, 0.05)', // subtle white left
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)', // white catchlight bottom
+    borderRightColor: 'rgba(255, 255, 255, 0.08)', // white catchlight right
+  },
+  // System message styles (welcome message, etc.)
+  systemMessageContainer: {
+    alignItems: 'center',
+    marginVertical: 24,
+    paddingHorizontal: 16,
+  },
+  systemMessageBubble: {
+    backgroundColor: colors.background.elevated,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    maxWidth: '90%',
+    overflow: 'hidden',
+  },
+  systemMessageBorder: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  systemMessageText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: colors.text.secondary,
+    textAlign: 'center',
+  },
+  wavingHand: {
+    fontSize: 32,
+    textAlign: 'center',
+    marginBottom: 12,
   },
 });

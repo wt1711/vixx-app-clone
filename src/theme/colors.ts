@@ -16,24 +16,24 @@ export const colors = {
     secondary: '#9CA3AF',
     tertiary: '#6B7280',
     placeholder: '#9CA3AF',
-    white: '#FFFFFF',
-    input: '#E5E7EB',
+    white: '#E5E7EB',
+    input: '#FFFFFF',
     lastMessage: '#D1D5DB',
-    messageOwn: '#E4E7EB',
-    messageOther: '#F3F4F6',
+    messageOwn: '#E5E7EB',
+    messageOther: '#E5E7EB',
   },
 
   // Accent / Brand
   accent: {
-    primary: '#A34400',
+    primary: '#1A7575',  // dark teal (matches bubble)
     purple: '#A855F7',
     instagram: '#E4405F',
   },
 
   // Message bubbles
   message: {
-    own: '#3B82F6',
-    other: '#2A2D38',
+    own: '#0D3B3B',  // electric cyan - dark teal base
+    other: '#18181C',  // stealth dark - low friction
     otherGradientStart: '#35384A',
     otherGradientEnd: '#252833',
     otherBorder: 'rgba(255, 255, 255, 0.08)',

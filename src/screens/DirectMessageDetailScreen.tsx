@@ -22,7 +22,8 @@ import { AIAssistantProvider } from '../context/AIAssistantContext';
 import { ReplyProvider } from '../context/ReplyContext';
 import { InputHeightProvider } from '../context/InputHeightContext';
 import LinearGradient from 'react-native-linear-gradient';
-import { colors, gradients } from '../theme';
+import { CarbonFiberTexture } from '../components/ui/NoiseTexture';
+import { colors } from '../theme';
 
 type DirectMessageDetailScreenProps = {
   roomId: string;
@@ -106,7 +107,8 @@ export function DirectMessageDetailScreen({
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={[...gradients.screenBackground]}
+          colors={['#0D0D0D', '#151518', '#0D0D0D']}
+          locations={[0, 0.5, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -123,7 +125,8 @@ export function DirectMessageDetailScreen({
     return (
       <View style={styles.container}>
         <LinearGradient
-          colors={[...gradients.screenBackground]}
+          colors={['#0D0D0D', '#151518', '#0D0D0D']}
+          locations={[0, 0.5, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -140,13 +143,10 @@ export function DirectMessageDetailScreen({
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* Gradient background - matches app theme */}
-      <LinearGradient
-        colors={[...gradients.screenBackground]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      {/* Solid black background */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }]} />
+      {/* Carbon fiber weave texture */}
+      <CarbonFiberTexture opacity={0.6} scale={0.5} />
 
       <GestureDetector gesture={swipeGesture}>
         <View style={{ flex: 1 }}>

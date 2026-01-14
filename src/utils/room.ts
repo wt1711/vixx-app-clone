@@ -1,6 +1,13 @@
 import { EventTimeline, MatrixClient, MatrixEvent, MsgType, Room, RoomMember, RoomType, Direction } from "matrix-js-sdk";
 import { MessageEvent, StateEvent, RelationType, ContentKey } from "../types/matrix/room";
-import { FOUNDER_MATRIX_ID, FOUNDER_ROOM_NAME, FOUNDER_AVATAR_URL } from "../constants/founder";
+import { FOUNDER_MATRIX_ID, FOUNDER_ROOM_NAME, FOUNDER_ROOM_NAME_LEGACY, FOUNDER_AVATAR_URL } from "../constants/founder";
+
+/**
+ * Check if a room is the founder/team chat room (supports both old and new names)
+ */
+export const isFounderRoom = (roomName: string | undefined): boolean => {
+  return roomName === FOUNDER_ROOM_NAME || roomName === FOUNDER_ROOM_NAME_LEGACY;
+};
 
 
 export const getStateEvent = (
@@ -24,8 +31,7 @@ export const getRoomAvatarUrl = (
 
     // Fallback to founder avatar if this is the founder room
     if (!avatarUrl) {
-      const roomName = room.name;
-      if (roomName === FOUNDER_ROOM_NAME) {
+      if (isFounderRoom(room.name)) {
         return FOUNDER_AVATAR_URL;
       }
     }
@@ -262,11 +268,20 @@ export const getLastRoomMessageAsync = async (
     roomName: string,
     senderName: string
   ): boolean => {
-    // Messages from founder in VIXX Founder room are not from me
-    if (roomName === FOUNDER_ROOM_NAME && sender === FOUNDER_MATRIX_ID) {
+    // Messages from founder in founder room are not from me
+    if (isFounderRoom(roomName) && sender === FOUNDER_MATRIX_ID) {
       return false;
     }
-    return sender === myUserId || roomName !== senderName;
+    // Primary: check sender ID directly
+    if (myUserId && sender === myUserId) {
+      return true;
+    }
+    // Fallback for DMs: if sender name matches room name, it's from the other person
+    // In DMs, room name = other person's name, so if sender name differs, it's from me
+    if (roomName && senderName) {
+      return roomName !== senderName;
+    }
+    return false;
   };
 
   type RoomContextMessage = {

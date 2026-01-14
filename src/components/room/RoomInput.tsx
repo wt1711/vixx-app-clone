@@ -21,6 +21,7 @@ import { getMatrixClient } from '../../matrixClient';
 import { useImageSender } from '../../hooks/message/useImageSender';
 import { LiquidGlassButton } from '../ui/LiquidGlassButton';
 import { colors } from '../../theme';
+import { isFounderRoom as checkIsFounderRoom } from '../../utils/room';
 
 type RoomInputProps = {
   room: Room;
@@ -44,6 +45,7 @@ export function RoomInput({ room }: RoomInputProps) {
   } = useAIAssistant();
   const { replyingTo, clearReply } = useReply();
   const { setInputHeight } = useInputHeight();
+  const isFounderRoom = checkIsFounderRoom(room.name);
 
   // Measure container height and report to context for timeline padding
   const handleLayout = useCallback((event: { nativeEvent: { layout: { height: number } } }) => {
@@ -306,7 +308,7 @@ export function RoomInput({ room }: RoomInputProps) {
           {/* Center - Text Input */}
           <TextInput
             style={styles.inputBarText}
-            placeholder="nhắn tin"
+            placeholder="Abcxyz"
             placeholderTextColor={colors.text.placeholder}
             value={inputText}
             onChangeText={handleTextChange}
@@ -316,16 +318,18 @@ export function RoomInput({ room }: RoomInputProps) {
             editable={!sending && !isUploading}
           />
 
-          {/* Right - VIXX AI Button */}
-          <TouchableOpacity
-            style={[styles.inputBarIcon, styles.aiButton]}
-            onPress={handleGenerateWithoutIdea}
-            disabled={isGeneratingResponse}
-          >
-            <Animated.View style={generationType === 'withoutIdea' ? { transform: [{ scale: pulseAnim }] } : undefined}>
-              <Sparkles color={isGeneratingResponse ? sparkleColor : colors.accent.primary} size={20} />
-            </Animated.View>
-          </TouchableOpacity>
+          {/* Right - VIXX AI Button (hidden in founder room) */}
+          {!isFounderRoom && (
+            <TouchableOpacity
+              style={[styles.inputBarIcon, styles.aiButton]}
+              onPress={handleGenerateWithoutIdea}
+              disabled={isGeneratingResponse}
+            >
+              <Animated.View style={generationType === 'withoutIdea' ? { transform: [{ scale: pulseAnim }] } : undefined}>
+                <Sparkles color={isGeneratingResponse ? sparkleColor : colors.accent.primary} size={20} />
+              </Animated.View>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Separate Send Button - Liquid Glass */}
@@ -490,7 +494,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#2A2A3E', // lighter smoked glass
   },
-  // Subtle outline border with slight violet tint
+  // Subtle outline border - neutral smoked glass
   reasoningBorder: {
     position: 'absolute',
     top: 0,
@@ -499,10 +503,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 12,
     borderWidth: 1,
-    borderTopColor: 'rgba(180, 140, 220, 0.15)',    // violet tint top
-    borderLeftColor: 'rgba(180, 140, 220, 0.10)',   // violet tint left
-    borderBottomColor: 'rgba(200, 160, 240, 0.20)', // brighter violet bottom
-    borderRightColor: 'rgba(180, 140, 220, 0.12)',  // violet tint right
+    borderTopColor: 'rgba(255, 255, 255, 0.10)',    // subtle white top
+    borderLeftColor: 'rgba(255, 255, 255, 0.06)',   // subtle white left
+    borderBottomColor: 'rgba(255, 255, 255, 0.14)', // white catchlight bottom
+    borderRightColor: 'rgba(255, 255, 255, 0.08)',  // subtle white right
   },
   reasoningText: {
     flex: 1,

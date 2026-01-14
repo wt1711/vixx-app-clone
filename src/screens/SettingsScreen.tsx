@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import { CarbonFiberTexture } from '../components/ui/NoiseTexture';
 import { BlurView } from '@react-native-community/blur';
 import { ChevronLeft, Sparkles } from 'lucide-react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -96,14 +97,10 @@ export function SettingsScreen({ onBack, onSelectRoom }: SettingsScreenProps) {
 
   return (
     <View style={styles.container}>
-      {/* Subtle gradient for glass refraction effect */}
-      <LinearGradient
-        colors={['#0D0D0D', '#151518', '#0D0D0D']}
-        locations={[0, 0.5, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      {/* Solid black background */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }]} />
+      {/* Carbon fiber weave texture */}
+      <CarbonFiberTexture opacity={0.6} scale={0.5} />
 
       {/* Header - flat title + liquid glass back pill */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -227,7 +224,7 @@ export function SettingsScreen({ onBack, onSelectRoom }: SettingsScreenProps) {
             </Svg>
             {/* Text content positioned over the SVG */}
             <View style={styles.speechBubbleContent}>
-              <Text style={styles.speechBubbleText}>Say hi với team</Text>
+              <Text style={styles.speechBubbleText}>Chat với team</Text>
               <Animated.Text
                 style={[
                   styles.wavingEmoji,
@@ -260,7 +257,7 @@ export function SettingsScreen({ onBack, onSelectRoom }: SettingsScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',

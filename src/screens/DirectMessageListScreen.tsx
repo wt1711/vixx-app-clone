@@ -198,7 +198,7 @@ export function DirectMessageListScreen({
       {/* Solid black background */}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }]} />
       {/* Carbon fiber weave texture */}
-      <CarbonFiberTexture opacity={0.4} scale={0.5} />
+      <CarbonFiberTexture opacity={0.6} scale={0.5} />
       {syncing ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={20} color={colors.accent.primary} />
