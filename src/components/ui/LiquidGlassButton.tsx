@@ -7,14 +7,16 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { LiquidGlassView, isLiquidGlassSupported } from '@callstack/liquid-glass';
 import { BlurView } from '@react-native-community/blur';
+import {
+  LiquidGlassView,
+  isLiquidGlassSupported,
+} from '@callstack/liquid-glass';
 
 type LiquidGlassButtonProps = {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
-  effect?: 'regular' | 'clear';
   onPress?: () => void;
   disabled?: boolean;
   borderRadius?: number;
@@ -24,12 +26,11 @@ export function LiquidGlassButton({
   children,
   style,
   contentStyle,
-  effect = 'regular',
   onPress,
   disabled,
   borderRadius = 20,
 }: LiquidGlassButtonProps) {
-  // Press animation for fallback
+  // Press animation
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
@@ -67,26 +68,36 @@ export function LiquidGlassButton({
     ]).start();
   }, [scale, opacity]);
 
-  // iOS 26+: Use native LiquidGlassView
+  // Native LiquidGlassView on iOS 26+, BlurView fallback otherwise
   if (isLiquidGlassSupported) {
     return (
-      <LiquidGlassView
-        style={[styles.container, { borderRadius }, style]}
-        effect={effect}
-        interactive
+      <Animated.View
+        style={[
+          styles.container,
+          { borderRadius },
+          style,
+          { transform: [{ scale }], opacity },
+        ]}
       >
+        <LiquidGlassView
+          style={[StyleSheet.absoluteFill, { borderRadius }]}
+          effect="regular"
+          interactive
+        />
         <Pressable
           onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
           disabled={disabled}
           style={[styles.content, contentStyle]}
         >
           {children}
         </Pressable>
-      </LiquidGlassView>
+      </Animated.View>
     );
   }
 
-  // Fallback for older iOS: BlurView + dark overlay + directional border
+  // BlurView fallback with dark overlay + directional border (liquid glass style)
   return (
     <Animated.View
       style={[
@@ -150,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { isLiquidGlassSupported };
+export { isLiquidGlassSupported, LiquidGlassView };
