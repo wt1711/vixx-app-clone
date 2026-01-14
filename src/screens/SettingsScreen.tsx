@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { CarbonFiberTexture } from '../components/ui/NoiseTexture';
-import { BlurView } from '@react-native-community/blur';
+import { LiquidGlassButton } from '../components/ui/LiquidGlassButton';
 import { ChevronLeft, Sparkles } from 'lucide-react-native';
 import Svg, { Path } from 'react-native-svg';
 // import { useAuth } from '../context/AuthContext';
@@ -105,22 +105,14 @@ export function SettingsScreen({ onBack, onSelectRoom }: SettingsScreenProps) {
       {/* Header - flat title + liquid glass back pill */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         {/* Back pill - liquid glass */}
-        <View style={styles.backPill}>
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="dark"
-            blurAmount={20}
-            reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
-          />
-          <View style={styles.pillGlassHighlight} pointerEvents="none" />
-          <TouchableOpacity
-            onPress={onBack}
-            style={styles.pillButton}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft color={colors.text.primary} size={24} />
-          </TouchableOpacity>
-        </View>
+        <LiquidGlassButton
+          style={styles.backPill}
+          contentStyle={styles.backPillContent}
+          borderRadius={22}
+          onPress={onBack}
+        >
+          <ChevronLeft color={colors.text.primary} size={24} />
+        </LiquidGlassButton>
 
         {/* Flat title */}
         <Text style={styles.headerTitle}>Settings</Text>
@@ -171,7 +163,7 @@ export function SettingsScreen({ onBack, onSelectRoom }: SettingsScreenProps) {
                 enableVibrateFallback: true,
                 ignoreAndroidSystemSettings: false,
               });
-              Alert.alert('Coming Soon', 'Premium upgrade will be available soon!');
+              Alert.alert('Coming Soon', 'Chat với team để nâng cấp premium');
             }}
             activeOpacity={0.7}
           >
@@ -269,31 +261,13 @@ const styles = StyleSheet.create({
   backPill: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
-  pillButton: {
+  backPillContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pillGlassHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    width: 44,
+    height: 44,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
   headerTitle: {
     fontSize: 28,

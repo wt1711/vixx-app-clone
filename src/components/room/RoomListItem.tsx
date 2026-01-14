@@ -111,22 +111,22 @@ const styles = StyleSheet.create({
   roomItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 18,
     paddingHorizontal: 4,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.transparent.white10,
+    borderBottomColor: 'rgba(255, 255, 255, 0.15)',
   },
   roomItemSelected: {
     backgroundColor: colors.transparent.white05,
   },
   avatarContainer: {
     position: 'relative',
-    marginRight: 14,
+    marginRight: 16,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
   },
   avatarPlaceholder: {
     backgroundColor: colors.background.elevated,
@@ -135,16 +135,16 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: colors.text.secondary,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
   },
   unreadDot: {
     position: 'absolute',
     top: 0,
     right: 0,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: colors.accent.primary,
     borderWidth: 2,
     borderColor: colors.background.primary,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   roomName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     color: colors.text.primary,
     flex: 1,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   roomLastMessage: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.text.lastMessage,
     fontWeight: '600',
   },

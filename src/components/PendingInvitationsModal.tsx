@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import { BlurView } from '@react-native-community/blur';
 import { Search, Check, ChevronLeft } from 'lucide-react-native';
+import { LiquidGlassButton } from './ui/LiquidGlassButton';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { colors } from '../theme';
 import { RoomItemData } from './room/RoomListItem';
@@ -186,23 +186,15 @@ const PendingInvitationsModal = ({
 
         {/* Header - flat title like Chats header */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          {/* Back pill - liquid glass = clickable */}
-          <View style={styles.backPill}>
-            <BlurView
-              style={StyleSheet.absoluteFill}
-              blurType="dark"
-              blurAmount={20}
-              reducedTransparencyFallbackColor="rgba(40, 40, 50, 0.9)"
-            />
-            <View style={styles.pillGlassHighlight} pointerEvents="none" />
-            <TouchableOpacity
-              onPress={onClose}
-              style={styles.pillButton}
-              activeOpacity={0.7}
-            >
-              <ChevronLeft color={colors.text.primary} size={24} />
-            </TouchableOpacity>
-          </View>
+          {/* Back pill - liquid glass */}
+          <LiquidGlassButton
+            style={styles.backPill}
+            contentStyle={styles.backPillContent}
+            borderRadius={22}
+            onPress={onClose}
+          >
+            <ChevronLeft color={colors.text.primary} size={24} />
+          </LiquidGlassButton>
 
           {/* Flat title - like Chats header */}
           <Text style={styles.headerTitle}>Add Chat</Text>
@@ -276,31 +268,13 @@ const styles = StyleSheet.create({
   backPill: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
-  pillButton: {
+  backPillContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pillGlassHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.25)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderRightColor: 'rgba(255, 255, 255, 0.08)',
+    width: 44,
+    height: 44,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
   headerTitle: {
     fontSize: 28,

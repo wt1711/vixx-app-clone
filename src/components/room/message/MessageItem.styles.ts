@@ -134,14 +134,14 @@ export const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255, 255, 255, 0.12)', // white catchlight bottom
     borderRightColor: 'rgba(255, 255, 255, 0.08)', // white catchlight right
   },
-  // System message styles (welcome message, etc.)
+  // System message styles (welcome message, etc.) - whiter frosted glass like reasoning pill
   systemMessageContainer: {
     alignItems: 'center',
     marginVertical: 24,
     paddingHorizontal: 16,
   },
   systemMessageBubble: {
-    backgroundColor: colors.background.elevated,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)', // whiter frosted glass
     borderRadius: 16,
     paddingHorizontal: 20,
     paddingVertical: 16,
@@ -152,7 +152,10 @@ export const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: 'rgba(255, 255, 255, 0.20)',    // brighter white top
+    borderLeftColor: 'rgba(255, 255, 255, 0.12)',   // white left
+    borderBottomColor: 'rgba(255, 255, 255, 0.25)', // bright white catchlight bottom
+    borderRightColor: 'rgba(255, 255, 255, 0.15)',  // white right
   },
   systemMessageText: {
     fontSize: 14,
